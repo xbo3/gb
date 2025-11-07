@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" id="vp" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>BiPa</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+(function(){
+  const vp=document.getElementById('vp');
+  function applyDesktopScale(){
+    const w=window.screen.width, target=1280;
+    if(w<=820){
+      const s=w/target;
+      vp.setAttribute('content',`width=${target}, initial-scale=${s}, maximum-scale=${s}, minimum-scale=${s}, user-scalable=no, viewport-fit=cover`);
+      document.documentElement.classList.add('mobile-desktop');
+    }else{
+      vp.setAttribute('content','width=device-width, initial-scale=1, viewport-fit=cover');
+      document.documentElement.classList.remove('mobile-desktop');
+    }
+  }
+  applyDesktopScale();
+  addEventListener('resize',applyDesktopScale);
+})();
+</script>
+<style>
+html,body{overflow-x:hidden}
+:root{
+  --sidebar-w:240px; --container:1480px;
+  --bg:#0f1215; --p1:#171a1f; --bd:#2a2f36; --text:#fff;
+  --hero-h:260px; --gap:10px; --overlay-dur:1.6s;
+  --promo-row:180px; --promo-mult:1;
+}
+*{box-sizing:border-box} body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',Inter,system-ui}
+.card{border:1px solid var(--bd);background:var(--p1);border-radius:14px}
+
+/* Header */
+header{position:sticky;top:0;z-index:70;background:#13161B;border-bottom:1px solid var(--bd)}
+.header-inner{max-width:var(--container);margin:0 auto;display:flex;align-items:center;gap:12px;height:72px;padding:0 12px}
+.logo-box{width:var(--sidebar-w)}
+.logo-img{height:70px}
+.search{flex:1;display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;border-radius:12px;background:#171a1f;border:1px solid var(--bd)}
+
+/* Layout */
+.layout{max-width:var(--container);margin:0 auto;display:flex;gap:16px;padding:0 12px}
+aside{width:var(--sidebar-w);flex-shrink:0}
+.sidebox{border:1px solid var(--bd);border-radius:12px;background:#12171c;overflow:hidden;margin-bottom:12px}
+.sidebox .head{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;font-weight:900;background:linear-gradient(180deg,#151b21,#11161b);cursor:pointer}
+.sidebox .caret{color:#7f8e9c;transition:transform .45s}
+.sidebox.open .caret{transform:rotate(180deg)}
+.sidebox .body{height:0;overflow:hidden}
+.menu-list{padding:10px}
+.menu-pill{display:flex;align-items:center;height:40px;border:1px solid #2a2f36;border-radius:10px;padding:0 12px;margin-bottom:8px;background:linear-gradient(90deg,#141a20 0%,#141a20 60%,#1b2630 100%);opacity:0;transform:translateY(-6px);transition:opacity .35s,transform .35s,border-color .25s,box-shadow .25s}
+.menu-pill.show{opacity:1;transform:translateY(0)}
+.menu-pill:hover{border-color:#67e8f9aa;box-shadow:0 0 0 1px #67e8f955 inset,0 10px 20px rgba(0,0,0,.25)}
+
+/* Member buttons */
+.btn-row{display:flex;gap:8px;margin-bottom:8px}
+.btn-half{flex:1;height:40px;border-radius:10px;border:1px solid #2a2f36;background:linear-gradient(180deg,#1a2b45,#132237);font-weight:800}
+.btn-half.login{background:linear-gradient(180deg,#2b1733,#231327)}
+.btn-vip{width:100%;height:40px;border-radius:10px;border:1px solid #2a2f36;background:linear-gradient(180deg,#2d3a1c,#1e2812);font-weight:900}
+
+/* Sections */
+.section{margin-top:18px}
+
+/* Hero */
+#heroWrap{overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap)}
+.hero-card{height:var(--hero-h);position:relative;overflow:hidden;background:linear-gradient(180deg,#1b2128,#14191e);cursor:pointer}
+.name-line{display:flex;align-items:center;gap:8px}
+.tg-ico{display:inline-flex;width:18px;height:18px;opacity:.9}
+.tg-ico svg{width:18px;height:18px}
+
+/* 6-cards */
+.six-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--gap)}
+.six-grid .card{border-radius:16px;overflow:hidden}
+
+/* Promo 1+4 */
+.exclusive{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);grid-auto-rows:calc(var(--promo-row)*var(--promo-mult))}
+.excl-big{grid-column:span 6;grid-row:span 2}
+.excl-small{grid-column:span 3}
+.exclusive .card{position:relative;border-radius:14px;background:linear-gradient(180deg,#151b21,#11161b);box-shadow:0 0 0 1px rgba(120,160,200,.18) inset}
+.promo-card{padding:0;cursor:pointer;touch-action:manipulation}
+.promo-holder{position:absolute;inset:0;overflow:hidden;border-radius:14px}
+.promo-holder img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.95)}
+.promo-title{position:absolute;font-weight:800;font-size:16px;padding:10px 12px;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.promo-title.tl{top:8px;left:12px}.promo-title.tr{top:8px;right:12px;text-align:right}
+.promo-title.bl{bottom:8px;left:12px}.promo-title.br{bottom:8px;right:12px;text-align:right}
+
+/* Overlay (fixed page view) */
+.overlay{position:fixed;inset:0;z-index:9999;pointer-events:none}
+.overlay[hidden]{display:none}
+.overlay .scrim{position:absolute;inset:0;background:rgba(0,0,0,.45);opacity:0}
+.overlay .panel{position:absolute;width:0;height:0;background:#161a24;border:1px solid #2a2f36;border-radius:14px;transform-origin:0 0;box-shadow:0 18px 60px rgba(0,0,0,.35);overflow:hidden}
+.overlay.show{pointer-events:auto}
+.overlay .content{padding:16px}
+.overlay .close{position:absolute;right:12px;top:10px;padding:.35rem .6rem;border-radius:.5rem;background:#0ea5e9;color:#fff;font-weight:700}
+
+/* Hero Video Modal */
+.hero-video-modal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(10,14,20,0.95),rgba(26,31,46,0.95));backdrop-filter:blur(10px)}
+.hero-video-modal.show{display:flex}
+.hero-video-container{position:relative;width:90%;max-width:600px;max-height:90vh}
+.hero-video-container video{width:100%;height:auto;max-height:85vh;object-fit:contain;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.hero-video-close{position:absolute;top:-50px;right:0;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(10px)}
+.confetti{position:absolute;width:10px;height:10px;background:linear-gradient(45deg,#ff6b6b,#4ecdc4,#ffe66d,#a8e6cf);border-radius:50%;pointer-events:none}
+@keyframes confetti-fall{0%{transform:translateY(-100vh) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* Modals */
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);z-index:10000}
+.modal .win{width:min(560px,92vw);background:#12161c;border:1px solid #2a2f36;border-radius:14px;padding:18px}
+.modal .hd{display:flex;align-items:center;justify-content:space-between}
+.modal .title{font-weight:800}
+.modal .close{color:#cbd5e1;cursor:pointer}
+
+/* Form styles */
+.form{margin-top:12px}
+.form label{display:block;font-weight:800;color:#c9d5e5;margin-top:10px}
+.input-group{display:flex;align-items:flex-end;gap:8px;margin-top:6px}
+.input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #2a3340;background:#0f141a;color:#eaf2ff}
+.input-group .input{flex-grow:1}
+.btn-duplicate{width:auto;min-width:70px;padding:12px 16px;border-radius:12px;border:1px solid #2a3340;background:#1f2a3a;color:#c9d5e5;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+.btn-duplicate:hover{background:#2a3340}
+.btn-primary{width:100%;margin-top:14px;padding:12px 16px;border-radius:12px;border:0;background:#0ea5e9;color:#001018;font-weight:900;cursor:pointer}
+</style>
+
+<script>
+(function(){
+  const url = new URL(location.href);
+  const f = url.searchParams.get('force');
+  if (f === 'desktop') localStorage.setItem('forceDesktop','1');
+  if (f === 'mobile')  localStorage.removeItem('forceDesktop');
+
+  const forced = localStorage.getItem('forceDesktop') === '1';
+  const inMobile = /\/mobile(\/|$)/i.test(location.pathname);
+  const mobileUA = /(Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini)/i.test(navigator.userAgent);
+  const small = Math.min(window.innerWidth, window.innerHeight) <= 768;
+
+  if (!inMobile && !forced && (f === 'mobile' || mobileUA || small)) {
+    location.replace('mobile/');
+  }
+})();
+</script>
+
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo-box"><img class="logo-img" src="https://xbo3.github.io/gb/mobile/assets/logom.png" alt="BiPa" onerror="this.style.display='none'"></div>
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8aa1b3" stroke-width="2"><path d="m21 21-4.3-4.3m0 0A7.5 7.5 0 1 0 5 5a7.5 7.5 0 0 0 11.7 11.7z"/></svg>
+      <input placeholder="게임, 스튜디오, 카테고리 검색" style="flex:1;background:transparent;outline:none;color:#e5edf6"/>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="sidebox open" id="memberBox">
+      <div class="head"><span>회원</span><span class="caret">⌄</span></div>
+      <div class="body"><div class="menu-list">
+        <div class="btn-row">
+          <button class="btn-half"  id="btnJoin">가입</button>
+          <button class="btn-half login" id="btnLogin">로그인</button>
+        </div>
+        <button class="btn-vip" id="btnVip">VIP 호출</button>
+      </div></div>
+    </div>
+
+    <div class="sidebox open" id="boxPromo">
+      <div class="head"><span>프로모션</span><span class="caret">⌄</span></div>
+      <div class="body"><div class="menu-list">
+        <div class="menu-pill" data-cat="공식,비공식프로모션">공식,비공식프로모션</div>
+        <div class="menu-pill" data-cat="신규즉시프로모션">신규즉시프로모션</div>
+        <div class="menu-pill" data-cat="시험범위공부하기">시험범위공부하기</div>
+        <div class="menu-pill" data-cat="퀴즈풀고쿠폰받기">퀴즈풀고쿠폰받기</div>
+      </div></div>
+    </div>
+
+    <div class="sidebox open" id="boxCat">
+      <div class="head"><span>파트너서비스</span><span class="caret">⌄</span></div>
+      <div class="body"><div class="menu-list">
+        <div class="menu-pill" data-cat="파트너서비스">🎫 파트너서비스</div>
+        <div class="menu-pill" data-cat="등급별 혜택">🧾 등급별 혜택</div>
+        <div class="menu-pill" data-cat="문의하기">🧩 문의하기</div>
+        <div class="menu-pill" data-cat="파트너인턴십 지원">🧩 파트너인턴십 지원</div>
+        <div class="menu-pill" data-cat="쿠폰신청하기">🧩 쿠폰신청하기</div>
+        <div class="menu-pill" data-cat="긴급쿠폰신청" id="prefLine">⭐ 긴급쿠폰신청</div>
+      </div></div>
+    </div>
+
+    <div class="sidebox open" id="boxCF">
+      <div class="head"><span>💸쿠폰💸</span><span class="caret">⌄</span></div>
+      <div class="body"><div class="menu-list">
+        <div class="menu-pill">쿠폰의 종류</div>
+        <div class="menu-pill">쿠폰신청하기</div>
+        <div class="menu-pill">긴급쿠폰신청하기</div>
+        <div class="menu-pill">인턴파트너영업쿠폰신청</div>
+      </div></div>
+    </div>
+  </aside>
+
+  <main class="flex-1 pb-16">
+    <div id="mainShift">
+      <div id="heroWrap" style="height:0;overflow:hidden">
+        <div class="card p-3">
+          <div class="hero-grid">
+            <div class="card hero-card" data-video="1">
+              <img src="https://xbo3.github.io/gb/mobile/assets/herom1.jpg" alt="Jayme Sun" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px" onerror="this.style.display='none'">
+              <div class="absolute left-4 bottom-3">
+                <div class="text-xs text-neutral-300">Jayme Sun (제이미 선)</div>
+                <div class="name-line font-bold">Executive Host
+                  <span class="tg-ico" title="Telegram">
+                    <svg viewBox="0 0 24 24" fill="#29A9EA"><path d="M9.2 16.9 8.9 20c.4 0 .6-.2.8-.4l2-1.9 4.1 3c.8.4 1.4.2 1.6-.8l2.9-13.7c.3-1.2-.4-1.7-1.2-1.4L2.7 9.7c-1.2.5-1.2 1.1-.2 1.4l4.2 1.3L18.7 6c.6-.4 1.1-.2.7.2L9.2 16.9z"/></svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="card hero-card" data-video="2">
+              <img src="https://xbo3.github.io/gb/mobile/assets/herom2.jpg" alt="Tom Woo" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px" onerror="this.style.display='none'">
+              <div class="absolute left-4 bottom-3">
+                <div class="text-xs text-neutral-300">Tom Woo (탐 우)</div>
+                <div class="name-line font-bold">Mid-level Host
+                  <a class="tg-ico" href="https://t.me/woo247" target="_blank" rel="noopener" title="Telegram">
+                    <svg viewBox="0 0 24 24" fill="#29A9EA"><path d="M9.2 16.9 8.9 20c.4 0 .6-.2.8-.4l2-1.9 4.1 3c.8.4 1.4.2 1.6-.8l2.9-13.7c.3-1.2-.4-1.7-1.2-1.4L2.7 9.7c-1.2.5-1.2 1.1-.2 1.4l4.2 1.3L18.7 6c.6-.4 1.1-.2.7.2L9.2 16.9z"/></svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="card hero-card" data-video="3">
+              <img src="https://xbo3.github.io/gb/mobile/assets/herom3.jpg" alt="Jay Hong" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px" onerror="this.style.display='none'">
+              <div class="absolute left-4 bottom-3">
+                <div class="text-xs text-neutral-300">Jay Hong (재 홍)</div>
+                <div class="name-line font-bold">Executive Host
+                  <a class="tg-ico" href="https://t.me/exid333" target="_blank" rel="noopener" title="Telegram">
+                    <svg viewBox="0 0 24 24" fill="#29A9EA"><path d="M9.2 16.9 8.9 20c.4 0 .6-.2.8-.4l2-1.9 4.1 3c.8.4 1.4.2 1.6-.8l2.9-13.7c.3-1.2-.4-1.7-1.2-1.4L2.7 9.7c-1.2.5-1.2 1.1-.2 1.4l4.2 1.3L18.7 6c.6-.4 1.1-.2.7.2L9.2 16.9z"/></svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="promoGroup" class="section">
+        <div class="exclusive">
+          <button id="promo-big" class="card excl-big" data-img="bigm1" style="position:relative;cursor:pointer">
+            <div class="promo-holder"></div>
+            <div class="p-5 text-left"><div class="text-lg font-bold">퀴즈만점!쿠폰만점!</div></div>
+          </button>
+          <button class="card excl-small promo-card" data-go="#page-official" data-img="prom1"><div class="promo-holder"></div><div class="promo-title tl">공식프로모션</div></button>
+          <button class="card excl-small promo-card" data-go="#page-partner"  data-img="prom2"><div class="promo-holder"></div><div class="promo-title tr">파트너프로모션</div></button>
+          <button class="card excl-small promo-card" data-go="#page-now"      data-img="prom3"><div class="promo-holder"></div><div class="promo-title bl">지금진행중</div></button>
+          <button class="card excl-small promo-card" data-go="#page-join"     data-img="prom4"><div class="promo-holder"></div><div class="promo-title br">프로모션참여</div></button>
+        </div>
+      </div>
+
+      <div class="section" id="cards6">
+        <div class="six-grid">
+          <div class="card"><div style="aspect-ratio:4/5;background:linear-gradient(180deg,hsl(0,70%,60%),hsl(60,50%,45%))"></div><div class="p-3"><div class="font-bold">30,000 슬롯전용쿠폰</div><div class="text-xs text-neutral-400 mt-1">사용 완료</div></div></div>
+          <div class="card"><div style="aspect-ratio:4/5;background:linear-gradient(180deg,hsl(17,70%,60%),hsl(77,50%,45%))"></div><div class="p-3"><div class="font-bold">20,000 즉석쿠폰</div><div class="text-xs text-neutral-400 mt-1">3등급사용가능</div></div></div>
+          <div class="card"><div style="aspect-ratio:4/5;background:linear-gradient(180deg,hsl(34,70%,60%),hsl(94,50%,45%))"></div><div class="p-3"><div class="font-bold">30,000 즉석쿠폰</div><div class="text-xs text-neutral-400 mt-1">사용 완료</div></div></div>
+          <div class="card"><div style="aspect-ratio:4/5;background:linear-gradient(180deg,hsl(51,70%,60%),hsl(111,50%,45%))"></div><div class="p-3"><div class="font-bold">60,000 롤링쿠폰</div><div class="text-xs text-neutral-400 mt-1">3등급사용가능</div></div></div>
+          <div class="card"><div style="aspect-ratio:4/5;background:linear-gradient(180deg,hsl(68,70%,60%),hsl(128,50%,45%))"></div><div class="p-3"><div class="font-bold">70,000 VIP쿠폰</div><div class="text-xs text-neutral-400 mt-1">사용 완료</div></div></div>
+          <div class="card"><div style="aspect-ratio:4/5;background:linear-gradient(180deg,hsl(85,70%,60%),hsl(145,50%,45%))"></div><div class="p-3"><div class="font-bold">100,000 VIP쿠폰</div><div class="text-xs text-neutral-400 mt-1">사용 완료</div></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<template id="pages">
+  <section id="page-official" class="content"><h2>공식프로모션</h2><p class="text-sm text-neutral-300">콘텐츠 준비중</p></section>
+  <section id="page-partner"  class="content"><h2>파트너프로모션</h2><p class="text-sm text-neutral-300">콘텐츠 준비중</p></section>
+  <section id="page-now"      class="content"><h2>지금진행중</h2><p class="text-sm text-neutral-300">콘텐츠 준비중</p></section>
+  <section id="page-join"     class="content"><h2>프로모션참여</h2><p class="text-sm text-neutral-300">콘텐츠 준비중</p></section>
+</template>
+
+<div id="overlay" class="overlay" hidden>
+  <div class="scrim"></div>
+  <div class="panel">
+    <button id="btnClose" class="close">닫기</button>
+    <div id="overlayBody" class="content"></div>
+  </div>
+</div>
+
+<!-- Hero Video Modal -->
+<div id="heroVideoModal" class="hero-video-modal">
+  <div class="hero-video-container">
+    <button class="hero-video-close" id="heroVideoClose">✕</button>
+    <video id="heroVideo" autoplay loop muted playsinline></video>
+  </div>
+</div>
+
+<!-- Join Modal -->
+<div id="joinModal" class="modal">
+  <div class="win">
+    <div class="hd">
+      <div class="title">회원가입</div>
+      <button id="joinClose" class="close">✕</button>
+    </div>
+    <form id="joinForm" class="form">
+      <label>아이디
+        <div class="input-group">
+          <input class="input" name="user_id" placeholder="아이디를 입력하세요" required/>
+          <button type="button" class="btn-duplicate" onclick="checkDuplicate('user_id')">중복확인</button>
+        </div>
+      </label>
+      <label>성함
+        <input class="input" name="name" placeholder="성함을 입력하세요" required/>
+      </label>
+      <label>비밀번호
+        <input class="input" type="password" name="pw" placeholder="비밀번호를 입력하세요" required/>
+      </label>
+      <label>비밀번호 확인
+        <input class="input" type="password" name="pw_confirm" placeholder="비밀번호를 다시 입력하세요" required/>
+      </label>
+      <label>연락처
+        <div class="input-group">
+          <input class="input" name="phone" placeholder="연락처를 입력하세요" required/>
+          <button type="button" class="btn-duplicate" onclick="checkDuplicate('phone')">중복확인</button>
+        </div>
+      </label>
+      <button class="btn-primary" type="submit">회원가입</button>
+    </form>
+  </div>
+</div>
+
+<div id="joinDone" class="modal">
+  <div class="win">
+    <div class="hd"><div class="title">가입 완료</div><button id="doneClose" class="close">✕</button></div>
+    <div class="mt-4 text-neutral-200 space-y-4">
+      <a href="https://www.gcb234.com/?btag=2415415" class="text-2xl font-bold block text-center" target="_blank" rel="noopener">선물네개.com 에서</a>
+      <div class="text-center">가입완료하신분만! 1분선호도체크하고</div>
+      <div class="flex justify-center">
+        <button id="btnPref" class="px-8 py-4 rounded-md border border-yellow-400 text-yellow-200 text-xl">선호도 쿠폰받기</button>
+      </div>
+      <div class="text-xs text-neutral-400 text-center">*가입하신 후 선호도 쿠폰받기 순서로 하셔야 지급됩니다.</div>
+    </div>
+  </div>
+</div>
+
+<div id="prefModal" class="modal">
+  <div class="win">
+    <div class="hd"><div class="title">1분 선호도 체크</div><button id="prefClose" class="close">✕</button></div>
+    <div class="mt-4 grid gap-4">
+      <label>선호 게임 장르
+        <select class="w-full mt-1 px-3 py-2 rounded-md bg-[#0f1318] border border-[#2a2f36]">
+          <option>슬롯</option><option>라이브 카지노</option><option>스포츠</option><option>기타</option>
+        </select>
+      </label>
+      <label>플레이 빈도
+        <select class="w-full mt-1 px-3 py-2 rounded-md bg-[#0f1318] border border-[#2a2f36]">
+          <option>거의 매일</option><option>주 2~3회</option><option>가끔</option>
+        </select>
+      </label>
+      <button id="prefSubmit" class="px-4 py-3 rounded-md bg-[#0ea5e9] text-white">제출하고 쿠폰받기</button>
+    </div>
+  </div>
+</div>
+
+<div id="loginModal" class="modal">
+  <div class="win">
+    <div class="hd"><div class="title">로그인</div><button id="loginClose" class="close">✕</button></div>
+    <div class="mt-3 grid gap-3">
+      <input class="px-3 py-2 rounded-md bg-[#0f1318] border border-[#2a2f36]" placeholder="아이디">
+      <input class="px-3 py-2 rounded-md bg-[#0f1318] border border-[#2a2f36]" placeholder="비밀번호" type="password">
+      <button class="px-4 py-3 rounded-md bg-[#0ea5e9] text-white">로그인</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_URL_HERE';
+
+/* side accordion */
+document.querySelectorAll('.sidebox').forEach(box=>{
+  const head=box.querySelector('.head'), body=box.querySelector('.body');
+  const items=[...box.querySelectorAll('.menu-pill,.btn-half,.btn-vip')];
+  const autoH=()=>{ body.style.height='auto'; body.style.height=body.scrollHeight+'px'; };
+  if(box.classList.contains('open')){ autoH(); items.forEach((p,i)=>setTimeout(()=>p.classList.add('show'),i*80)); }
+  head.addEventListener('click',()=>{
+    const open=box.classList.contains('open');
+    if(open){
+      body.style.height=body.scrollHeight+'px';
+      requestAnimationFrame(()=>{ body.style.transition='height .7s cubic-bezier(.2,.8,.2,1)'; body.style.height='0px'; });
+      items.slice().reverse().forEach((p,i)=>setTimeout(()=>p.classList.remove('show'),i*50));
+      body.addEventListener('transitionend',function f(){ body.style.transition=''; box.classList.remove('open'); body.removeEventListener('transitionend',f); },{once:true});
+    }else{
+      box.classList.add('open'); body.style.height='0px';
+      requestAnimationFrame(()=>{ const h=body.scrollHeight+'px'; body.style.transition='height .7s cubic-bezier(.2,.8,.2,1)'; body.style.height=h; });
+      items.forEach((p,i)=>setTimeout(()=>p.classList.add('show'),i*110));
+      body.addEventListener('transitionend',function f(){ body.style.transition=''; body.style.height='auto'; body.removeEventListener('transitionend',f); },{once:true});
+    }
+  });
+});
+
+/* hero height */
+const heroWrap=document.getElementById('heroWrap');
+function alignHero(){
+  const t=document.getElementById('prefLine'); if(!t) return;
+  const bottom=t.getBoundingClientRect().bottom+scrollY;
+  const top=heroWrap.getBoundingClientRect().top+scrollY;
+  const box=heroWrap.querySelector('.card.p-3'); const cs=getComputedStyle(box);
+  const pad=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
+  const base=Math.max(160, Math.round(bottom-top-pad));
+  document.documentElement.style.setProperty('--hero-h', Math.round(base*0.4)+'px');
+}
+addEventListener('load',alignHero); addEventListener('resize',alignHero);
+
+/* hero toggle */
+(function(){
+  const btn=document.getElementById('btnVip'); if(!btn) return;
+  let open=false;
+  function collapse(){ const h=heroWrap.scrollHeight; heroWrap.style.height=h+'px'; heroWrap.offsetHeight; heroWrap.style.transition='height .7s cubic-bezier(.2,.8,.2,1)'; heroWrap.style.height='0px'; heroWrap.addEventListener('transitionend',()=>{heroWrap.style.transition='';},{once:true}); }
+  function expand(){ heroWrap.style.height='0px'; heroWrap.offsetHeight; heroWrap.style.transition='height .7s cubic-bezier(.2,.8,.2,1)'; heroWrap.style.height=heroWrap.scrollHeight+'px'; heroWrap.addEventListener('transitionend',()=>{heroWrap.style.transition=''; heroWrap.style.height='auto';},{once:true}); }
+  btn.addEventListener('click',()=>{ open?collapse():expand(); open=!open; });
+})();
+
+/* Hero Video Modal */
+(function(){
+  const modal=document.getElementById('heroVideoModal');
+  const video=document.getElementById('heroVideo');
+  const closeBtn=document.getElementById('heroVideoClose');
+  
+  const videos={
+    '1':'https://xbo3.github.io/gb/mobile/assets/partner1-dance.mp4',
+    '2':'https://xbo3.github.io/gb/mobile/assets/partner2-dance.mp4',
+    '3':'https://xbo3.github.io/gb/mobile/assets/partner3-dance.mp4'
+  };
+  
+  function createConfetti(){
+    for(let i=0;i<30;i++){
+      setTimeout(()=>{
+        const c=document.createElement('div');
+        c.className='confetti';
+        c.style.left=Math.random()*100+'%';
+        c.style.animationDuration=(Math.random()*2+2)+'s';
+        c.style.animation='confetti-fall forwards';
+        modal.appendChild(c);
+        setTimeout(()=>c.remove(),4000);
+      },i*50);
+    }
+  }
+  
+  let confettiInt=null;
+  
+  document.querySelectorAll('.hero-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const videoNum=card.dataset.video;
+      video.src=videos[videoNum];
+      modal.classList.add('show');
+      video.play();
+      createConfetti();
+      confettiInt=setInterval(createConfetti,5000);
+    });
+  });
+  
+  function closeModal(){
+    modal.classList.remove('show');
+    video.pause();
+    video.src='';
+    if(confettiInt){clearInterval(confettiInt);confettiInt=null;}
+    document.querySelectorAll('.confetti').forEach(c=>c.remove());
+  }
+  
+  closeBtn.addEventListener('click',closeModal);
+  modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('show'))closeModal();});
+})();
+
+/* overlay */
+let FIXED_RECT=null;
+function computeFixedRect(){
+  const main=document.querySelector('main.flex-1').getBoundingClientRect();
+  const top=document.querySelector('#mainShift').getBoundingClientRect().top;
+  const height=Math.max(200, window.innerHeight - top - 16);
+  FIXED_RECT={left:main.left, top, width:main.width, height};
+}
+addEventListener('load',computeFixedRect); addEventListener('resize',computeFixedRect);
+function unifiedRect(){ if(!FIXED_RECT) computeFixedRect(); return FIXED_RECT; }
+
+const overlay=document.getElementById('overlay');
+const scrim=overlay.querySelector('.scrim');
+const panel=overlay.querySelector('.panel');
+const bodyEl=document.getElementById('overlayBody');
+const btnClose=document.getElementById('btnClose');
+const pages=document.getElementById('pages');
+const pageMap={}; pages.content.querySelectorAll('section').forEach(s=>pageMap['#'+s.id]=s);
+const DUR=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--overlay-dur'))||1.6;
+const opts={duration:DUR*1000,easing:'cubic-bezier(.2,0,.1,1)',fill:'forwards',composite:'replace'};
+function frameFromRect(from,to){
+  const sx=+(from.width/to.width).toFixed(4), sy=+(from.height/to.height).toFixed(4);
+  const tx=+(from.left-to.left).toFixed(2), ty=+(from.top-to.top).toFixed(2);
+  return `translate3d(${tx}px,${ty}px,0) scale(${sx},${sy})`;
+}
+let busy=false, openView=false, lastRect=null;
+function openFrom(el, sec){
+  if(busy||openView) return; busy=true;
+  bodyEl.innerHTML=''; bodyEl.appendChild(pageMap[sec].cloneNode(true));
+  const toR=unifiedRect(); const fromRect=el.getBoundingClientRect(); lastRect=fromRect;
+  panel.style.left=toR.left+'px'; panel.style.top=toR.top+'px'; panel.style.width=toR.width+'px'; panel.style.height=toR.height+'px';
+  const from=frameFromRect(fromRect,toR);
+  overlay.hidden=false; overlay.classList.add('show');
+  const pa=panel.animate([{opacity:0,transform:from},{opacity:1,transform:'translate3d(0,0,0) scale(1,1)'}],opts);
+  const sa=scrim.animate([{opacity:0},{opacity:1}],opts);
+  Promise.all([pa.finished,sa.finished]).then(()=>{busy=false;openView=true;});
+}
+function closeOverlay(){
+  if(busy||!openView) return; busy=true;
+  const toR=unifiedRect(); const to=frameFromRect(lastRect,toR);
+  const pa=panel.animate([{opacity:1,transform:'translate3d(0,0,0) scale(1,1)'},{opacity:0,transform:to}],opts);
+  const sa=scrim.animate([{opacity:1},{opacity:0}],opts);
+  Promise.all([pa.finished,sa.finished]).then(()=>{overlay.hidden=true;overlay.classList.remove('show');busy=false;openView=false;});
+}
+btnClose.addEventListener('click',closeOverlay); scrim.addEventListener('click',closeOverlay);
+
+document.querySelectorAll('#promoGroup .promo-card').forEach(card=>{
+  card.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    openFrom(card, card.getAttribute('data-go'));
+  },{passive:false});
+});
+
+function slideIn(title){
+  const fake=document.createElement('section'); fake.className='content';
+  fake.innerHTML=`<h2>${title}</h2><p class="text-sm text-neutral-300">콘텐츠 준비중</p>`;
+  bodyEl.innerHTML=''; bodyEl.appendChild(fake);
+  const toR=unifiedRect();
+  panel.style.left=toR.left+'px'; panel.style.top=toR.top+'px'; panel.style.width=toR.width+'px'; panel.style.height=toR.height+'px';
+  overlay.hidden=false; overlay.classList.add('show'); openView=true;
+  panel.animate([{opacity:0,transform:'translate3d(-30px,0,0)'},{opacity:1,transform:'translate3d(0,0,0)'}],{duration:480,easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'});
+  scrim.animate([{opacity:0},{opacity:1}],{duration:480,fill:'forwards'});
+}
+document.querySelectorAll('#boxCat .menu-pill,#boxPromo .menu-pill,#boxCF .menu-pill').forEach(p=>{
+  p.addEventListener('click',()=>slideIn(p.dataset.cat||p.textContent.trim()));
+});
+
+/* images */
+function loadFirstAvailable(holder, base){
+  const baseUrl = 'https://xbo3.github.io/gb/mobile/assets/';
+  const exts=['.png','.PNG','.jpg','.JPG','.jpeg','.JPEG'];
+  let i=0; const img=new Image();
+  img.onload=()=>{ img.className='w-full h-full object-cover'; holder.appendChild(img); };
+  img.onerror=()=>{ i++; if(i<exts.length) img.src=`${baseUrl}${base}${exts[i]}`; };
+  img.src=`${baseUrl}${base}${exts[i]}`;
+}
+document.querySelectorAll('[data-img]').forEach(el=>{
+  const h=el.querySelector('.promo-holder'); if(h) loadFirstAvailable(h, el.dataset.img);
+});
+
+/* modals */
+const joinModal=document.getElementById('joinModal');
+const joinDone =document.getElementById('joinDone');
+const loginModal=document.getElementById('loginModal');
+const prefModal=document.getElementById('prefModal');
+const openM=m=>{ m.style.display='flex'; document.body.style.overflow='hidden'; };
+const closeM=m=>{ m.style.display='none'; document.body.style.overflow=''; };
+
+document.getElementById('btnJoin').addEventListener('click',()=>openM(joinModal));
+document.getElementById('btnLogin').addEventListener('click',()=>openM(loginModal));
+document.getElementById('promo-big').addEventListener('click',()=>openM(joinModal));
+
+function checkDuplicate(field) {
+  const input = document.querySelector(`input[name="${field}"]`);
+  const value = input.value.trim();
+  if (!value) {alert('값을 입력해주세요.'); return;}
+  fetch(SCRIPT_URL, {method: 'POST',headers: { 'Content-Type': 'application/x-www-form-urlencoded' },body: `action=checkDuplicate&field=${field}&value=${encodeURIComponent(value)}`})
+  .then(res => res.json()).then(data => {if (data.success) {alert(data.available ? '사용 가능합니다.' : '이미 사용중입니다.');}else{alert('확인 중 오류가 발생했습니다.');}})
+  .catch(err => {console.error(err);alert('서버 연결에 실패했습니다.');});
+}
+
+document.getElementById('joinForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  if (formData.get('pw') !== formData.get('pw_confirm')) {alert('비밀번호가 일치하지 않습니다.'); return;}
+  fetch(SCRIPT_URL, {method: 'POST',body: new URLSearchParams({action: 'register',user_id: formData.get('user_id'),name: formData.get('name'),pw: formData.get('pw'),phone: formData.get('phone')})})
+  .then(res => res.json()).then(data => {if (data.success) {closeM(joinModal);openM(joinDone);}else{alert(data.message || '가입 중 오류가 발생했습니다.');}})
+  .catch(err => {console.error(err);alert('서버 연결에 실패했습니다.');});
+});
+
+document.getElementById('joinClose').addEventListener('click',()=>closeM(joinModal));
+document.getElementById('doneClose').addEventListener('click',()=>closeM(joinDone));
+document.getElementById('btnPref').addEventListener('click',()=>{ closeM(joinDone); openM(prefModal); });
+document.getElementById('prefClose').addEventListener('click',()=>closeM(prefModal));
+document.getElementById('prefSubmit').addEventListener('click',()=>{ closeM(prefModal);alert('선호도 체크가 완료되었습니다!');});
+document.getElementById('loginClose').addEventListener('click',()=>closeM(loginModal));
+</script>
+</body>
+</html>
+```
+
+---
+
+## 2. 모바일 버전 (/mobile/index.html)
+
+이전에 제공드린 모바일 버전 그대로 사용하시면 됩니다!
+
+---
+
+## 폴더 구조
+```
+xbo3/gb/
+├── index.html (PC 버전 - 위 코드)
+└── mobile/
+    ├── index.html (모바일 버전 - 이전 코드)
+    └── assets/
+        ├── logom.png
+        ├── bigm1.png ~ bigm8.png
+        ├── prom1.png ~ prom4.png
+        ├── herom1.jpg ~ herom3.jpg
+        ├── partner1-dance.mp4
+        ├── partner2-dance.mp4
+        └── partner3-dance.mp4

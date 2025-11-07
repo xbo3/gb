@@ -1,0 +1,239 @@
+<!-- 기존 CSS의 Hero 확대 모드 부분을 다음과 같이 수정 -->
+<style>
+/* 기존 스타일 유지하고 아래 내용 추가/수정 */
+
+/* Hero 확대 모드 */
+.hero-area.expanded .hero-card.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  inset: 0;
+  border-radius: 0;
+  opacity: 1;
+  transform: translateX(0);
+  transition: none;
+  height: 100vh;
+  width: 100vw;
+  border: none;
+  background: linear-gradient(180deg, #0a0e14 0%, #1a1f2e 100%);
+}
+
+/* 파트너 이미지 컨테이너 */
+.partner-full {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.partner-full img {
+  max-width: 90%;
+  max-height: 85vh;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
+}
+
+/* 목례 애니메이션 */
+@keyframes bow {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(15deg) translateY(-10px); }
+}
+
+/* 춤 애니메이션 - 좌우 흔들기 */
+@keyframes dance {
+  0%, 100% { transform: translateX(0) rotate(0deg) scale(1); }
+  10% { transform: translateX(-15px) rotate(-5deg) scale(1.02); }
+  20% { transform: translateX(15px) rotate(5deg) scale(0.98); }
+  30% { transform: translateX(-15px) rotate(-5deg) scale(1.02); }
+  40% { transform: translateX(15px) rotate(5deg) scale(0.98); }
+  50% { transform: translateX(0) rotate(0deg) scale(1.05); }
+  60% { transform: translateX(-10px) rotate(-3deg) scale(0.98); }
+  70% { transform: translateX(10px) rotate(3deg) scale(1.02); }
+  80% { transform: translateX(-10px) rotate(-3deg) scale(0.98); }
+  90% { transform: translateX(10px) rotate(3deg) scale(1.02); }
+}
+
+/* 웃는 표정 효과 (선택적 오버레이) */
+@keyframes smile {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.partner-full.bow img {
+  animation: bow 1.5s ease-in-out;
+}
+
+.partner-full.dancing img {
+  animation: dance 2s ease-in-out infinite;
+}
+
+/* 파티클 효과 (선택적) */
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #ffe66d, #a8e6cf);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+@keyframes confetti-fall {
+  0% { 
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% { 
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* 정보 표시 */
+.hero-area.expanded .hero-info {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 20px 30px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+}
+
+.hero-area.expanded .hero-name {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.hero-area.expanded .hero-title {
+  font-size: 20px;
+}
+</style>
+
+<!-- 기존 script 끝부분의 Hero 카드 확대 기능을 다음과 같이 수정 -->
+<script>
+/* Hero 카드 확대 기능 - 수정된 버전 */
+(function() {
+  const heroArea = document.querySelector('.hero-area');
+  const heroCards = document.querySelectorAll('.hero-card');
+  const closeBtn = document.getElementById('closeHero');
+  const container = document.getElementById('container');
+  
+  // 파트너 전신 이미지 URL (실제 이미지로 교체 필요)
+  const partnerImages = {
+    '1': 'https://xbo3.github.io/gb/mobile/assets/partner1-full.png',
+    '2': 'https://xbo3.github.io/gb/mobile/assets/partner2-full.png',
+    '3': 'https://xbo3.github.io/gb/mobile/assets/partner3-full.png'
+  };
+  
+  // 컨페티 생성 함수
+  function createConfetti() {
+    for (let i = 0; i < 30; i++) {
+      setTimeout(() => {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        confetti.style.animation = 'confetti-fall forwards';
+        heroArea.appendChild(confetti);
+        
+        setTimeout(() => confetti.remove(), 4000);
+      }, i * 50);
+    }
+  }
+  
+  heroCards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // VIP 모드가 열려있는 경우에만 확대
+      if (!container.classList.contains('hero-active')) {
+        return;
+      }
+      
+      const heroNum = card.dataset.hero;
+      
+      // 모든 카드에서 active 제거
+      heroCards.forEach(c => c.classList.remove('active'));
+      
+      // 클릭된 카드에 active 추가
+      card.classList.add('active');
+      
+      // 전신 이미지 컨테이너 생성
+      const fullContainer = document.createElement('div');
+      fullContainer.className = 'partner-full bow';
+      
+      const fullImg = document.createElement('img');
+      fullImg.src = partnerImages[heroNum];
+      fullImg.alt = 'Partner Full Image';
+      fullImg.onerror = function() {
+        // 이미지 로드 실패시 플레이스홀더
+        this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="800"%3E%3Crect fill="%23141820" width="400" height="800"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%23ffffff" font-size="20"%3EPartner Image%3C/text%3E%3C/svg%3E';
+      };
+      
+      fullContainer.appendChild(fullImg);
+      
+      // 기존 내용을 임시 저장
+      const originalContent = card.innerHTML;
+      card.innerHTML = '';
+      card.appendChild(fullContainer);
+      
+      // hero-area 확대
+      heroArea.classList.add('expanded');
+      document.body.style.overflow = 'hidden';
+      
+      // 목례 후 춤 시작
+      setTimeout(() => {
+        fullContainer.classList.remove('bow');
+        fullContainer.classList.add('dancing');
+        
+        // 컨페티 효과
+        createConfetti();
+        
+        // 5초마다 컨페티 반복
+        const confettiInterval = setInterval(createConfetti, 5000);
+        
+        // 닫기 시 인터벌 정리
+        card.dataset.confettiInterval = confettiInterval;
+      }, 1500);
+    });
+  });
+  
+  // 닫기 함수
+  function closeExpanded() {
+    heroArea.classList.remove('expanded');
+    heroCards.forEach(c => {
+      c.classList.remove('active');
+      
+      // 컨페티 인터벌 정리
+      if (c.dataset.confettiInterval) {
+        clearInterval(c.dataset.confettiInterval);
+        delete c.dataset.confettiInterval;
+      }
+      
+      // 모든 컨페티 제거
+      document.querySelectorAll('.confetti').forEach(conf => conf.remove());
+    });
+    document.body.style.overflow = '';
+  }
+  
+  // 닫기 버튼
+  closeBtn.addEventListener('click', closeExpanded);
+  
+  // ESC 키로 닫기
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && heroArea.classList.contains('expanded')) {
+      closeExpanded();
+    }
+  });
+})();
+</script>
